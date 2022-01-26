@@ -1,0 +1,95 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+  gather_facts: false
+  tasks:
+    - name: Create system group "syslogmgt"
+      group:
+        name: syslogmgt
+        state: present
+        system: yes
+      become: true
+
+    - name: Create user "syslogng"
+      user:
+        name: syslogng
+        home: /home/syslogng
+        shell: /bin/bash
+      become: true
+
+    - name: Change login expiration, necessary for backup purposes
+      shell: chage -I -1 -m 0 -M 99999 -E -1 syslogng
+      become: true
+
+    - name: Add "pined497" users to the "syslogmgt" group
+      user:
+        name: pined497
+        groups: syslogmgt
+        append: yes
+      become: true
+
+    - name: Add "syslogng" users to the "syslogmgt" group
+      user:
+        name: syslogng
+        groups: syslogmgt
+        append: yes
+      become: true
+
+    - name: Set installer variable
+      set_fact:
+        #installer: 'syslog-ng-premium-edition-compact-7.0.6-1+20180130+1221.rhel7.x86_64.rpm'
+        installer: 'syslog-ng-premium-edition-compact-7.0.12-1.rhel7.x86_64.rpm'
+          
+
+    - name: Copy the installer to the remote system
+      copy:
+        src: "/home/pined497/syslog-ng/installers/{{ installer }}"
+        dest: /tmp/
+    
+    - name: Install syslog-ng
+      yum:
+        name: "/tmp/{{ installer }}"
+        state: present
+      become: true   
+    
+    - name: Change directory permissions for /opt/syslog-ng/
+      file:
+        dest: /opt/syslog-ng/
+        owner: syslogng
+        group: syslogng
+        recurse: yes
+      become: true
+
+    - name: Change directory permissions for /data
+      file:
+        dest: /data/
+        owner: syslogng
+        group: syslogng
+        recurse: yes
+      become: true
+
+    - name: Set capabilities
+      shell: 'setcap cap_net_bind_service=+ep /opt/syslog-ng/libexec/syslog-ng'
+      become: true
+
+    - name: Add user syslogng to the service configuration file
+      lineinfile:
+        path: /etc/systemd/system/multi-user.target.wants/syslog-ng.service
+        line: 'User=syslogng'
+        insertafter: Restart=on-failure
+      become: true
+
+    - name: Reload daemon
+      shell: 'systemctl daemon-reload'
+      become: true
+
+    - name: Restart syslog-ng
+      service:
+        name: syslog-ng
+        state: restarted
+      become: true
+
+    - name: Remove installer
+      file:
+        dest: "/tmp/{{ installer }}"
+        state: absent 

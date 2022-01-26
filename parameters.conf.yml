@@ -1,0 +1,32 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+
+  vars:
+
+    parameters_content: |
+      @define SYSLOG_ROOT "/opt/syslog-ng"
+      @define SYSLOG_CONFIG_ROOT "`SYSLOG_ROOT`/etc"
+      @define TLS_ROOT "`SYSLOG_CONFIG_ROOT`/keys"
+      @define HOSTNAME " {{ansible_hostname}} "
+      @define LB1_HOST "lmpcf02.logmngt.oam.kpn.org"
+      @define ACCEPT_LB1_HOST "lmasms01.logmngt.oam.kpn.org"
+      @define LOCAL_NAME ""
+      @define LOCAL_IP "{{ansible_default_ipv4.address}}"
+      @define DOMAIN_NAME ""
+      @define HASH_SALT "YiMCb9LGprjH7ilYmAaeFQGDN8dYTghH"
+      @define CIPHER_SUITES "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256"
+
+  tasks:
+
+    - name: Create the parameters.conf file
+
+      copy:
+        dest: /opt/syslog-ng/etc/parameters.conf
+        content: "{{ parameters_content }}"
+        owner: syslogng
+        group: syslogng
+        mode: 0644 
+
+      become: true
+

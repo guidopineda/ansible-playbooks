@@ -1,0 +1,104 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: 10.117.142.49
+
+  gather_facts: false
+  vars:
+    date: "{{ lookup('pipe', 'date +%d-%m-%Y') }}"
+  tasks:
+
+    - name: Set installer variable
+      set_fact:
+        #installer: 'syslog-ng-premium-edition-compact-7.0.6-1+20180130+1221.rhel7.x86_64.rpm'
+        #installer: 'syslog-ng-premium-edition-compact-7.0.8-1.rhel7.x86_64.rpm'
+        #installer: 'syslog-ng-premium-edition-compact-7.0.10-1.rhel7.x86_64.rpm'
+        #installer: 'syslog-ng-premium-edition-compact-7.0.7-1.rhel7.x86_64.rpm'
+        #installer: 'syslog-ng-premium-edition-compact-7.0.14-1.rhel6.x86_64.rpm' 
+        installer: 'syslog-ng-premium-edition-compact-7.0.14-1.rhel7.x86_64.rpm'
+
+    - name: Check running version of syslog-ng
+      shell: 'rpm -qa | grep "syslog-ng"'
+      register: syslog_ng_version
+      args:
+        warn: no
+
+    - name: Stop syslog-ng
+      service:
+        name: syslog-ng
+        state: stopped
+      become: true
+
+    - name: Backup of /opt/syslog-ng/etc/ to /tmp/syslog-ng/etc.tar.gz
+      archive:
+        path: /opt/syslog-ng/etc/
+        dest: /tmp/etc-{{ date }}.tar.gz
+        format: gz
+      become: true
+
+    - name: Copy the syslog-ng installer to remote machine
+      copy:
+        src: "/home/pined497/syslog-ng/installers/{{ installer }}"
+        dest: /tmp/
+
+    - name: Remove syslog-ng
+      yum:
+        name: "{{ syslog_ng_version.stdout }}"
+        state: removed
+      become: true
+
+    - name: Install syslog-ng
+      yum:
+        name: "/tmp/{{ installer }}"
+        state: present
+      become: true
+
+    - name: Rename /opt/syslog-ng/etc/syslog-ng.conf.rpmsave to /opt/syslog-ng/etc/syslog-ng.conf
+      command: mv /opt/syslog-ng/etc/syslog-ng.conf.rpmsave /opt/syslog-ng/etc/syslog-ng.conf
+      ignore_errors: yes
+      become: true
+
+    #### Only when syslog-ng is running as syslog-ng user:
+
+    - name: Change directory permissions for /opt/syslog-ng/
+      file:
+        dest: /opt/syslog-ng/
+        owner: syslogng
+        group: syslogng
+        recurse: yes
+      become: true
+
+    - name: Change directory permissions for /data
+      file:
+        dest: /data/
+        owner: syslogng
+        group: syslogng
+        recurse: yes
+      become: true
+
+    - name: Set capabilities
+      shell: 'setcap cap_net_bind_service=+ep /opt/syslog-ng/libexec/syslog-ng'
+      become: true
+
+    - name: Add user syslogng to the service configuration file
+      lineinfile:
+        path: /etc/systemd/system/multi-user.target.wants/syslog-ng.service
+        line: 'User=syslogng'
+        insertafter: Restart=on-failure
+      become: true
+
+    - name: Reload daemon
+      shell: 'systemctl daemon-reload'
+      become: true
+
+    ####
+
+    - name: Restart syslog-ng
+      service:
+        name: syslog-ng
+        state: restarted
+      become: true
+
+    - name: Remove installer
+      file:
+        dest: "/tmp/{{ installer }}"
+        state: absent

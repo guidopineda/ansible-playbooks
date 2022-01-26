@@ -1,0 +1,50 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+
+  tasks:
+
+    - name: Create /opt/syslog-ng/etc/ssl/ directory
+      file:
+        path: /opt/syslog-ng/etc/ssl/
+        state: directory
+        owner: syslogng
+        group: syslogng
+        mode: 0755
+      become: true
+
+    - name: Create /opt/syslog-ng/etc/ssl/certs/ directory
+      file:
+        path: /opt/syslog-ng/etc/ssl/certs/
+        state: directory
+        owner: syslogng
+        group: syslogng
+        mode: 0755
+      become: true
+
+    - name: Create /opt/syslog-ng/etc/ssl/keys/ directory
+      file:
+        path: /opt/syslog-ng/etc/ssl/keys/
+        state: directory
+        owner: syslogng
+        group: syslogng
+        mode: 0755
+      become: true
+
+    - name: Install KPN Private Root CA certificate
+      copy:
+        src: /home/pined497/syslog-ng/kpn-keys-request/keys/KPN-CA/KPN_N.V._Private_Root_CA.crt
+        dest: /opt/syslog-ng/etc/ssl/certs/
+        owner: syslogng
+        group: syslogng
+        mode: 0644
+      become: true
+
+    - name: Create simlink for KPN's certificate
+      file:
+        src: /opt/syslog-ng/etc/ssl/certs/KPN_N.V._Private_Root_CA.crt
+        dest: /opt/syslog-ng/etc/ssl/certs/8f87586c.0
+        owner: syslogng
+        group: syslogng
+        state: link
+      become: true

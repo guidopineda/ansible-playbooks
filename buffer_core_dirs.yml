@@ -1,0 +1,27 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+
+  tasks:
+
+    - name: Create /data/buffer/ directory
+      file:
+        path: /data/buffer/
+        state: directory
+        owner: syslogng
+        group: syslogng
+        mode: 0755
+      become: true
+
+    - name: Create /data/core/ directory
+      file:
+        path: /data/core/
+        state: directory
+        owner: syslogng
+        group: syslogng
+        mode: 0777
+      become: true
+
+    - name: Enable temporal core dumps in /data/core/
+      shell: 'echo "/data/core/core.%e.%p.%h.%t" | sudo tee /proc/sys/kernel/core_pattern'
+      

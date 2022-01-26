@@ -1,0 +1,95 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+
+  vars:
+    syslogng_commands: |
+      # User specific sudo commands
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/cat /var/log/messages*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/cat /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chmod * /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chmod * /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chmod * /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chown * /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chown * /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chown * /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/cp * /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/cp * /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/cp * /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/usr/bin/ln -s * /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ln -s * /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ln -s * /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls -* /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls -* /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls -* /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls * /var/log/messages*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls * /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls /var/log/messages*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ls /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/mkdir /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/mkdir /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/mkdir /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/mv /data/* /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/mv /opt/syslog-ng/etc/* /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/mv /opt/syslog-ng/var/* /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rm -* /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rm /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rm /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rm /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rm /var/log/syslog-ng
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir -* /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir -* /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir -* /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir -* /var/log/syslog-ng
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rmdir /var/log/syslog-ng/
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/rpm * syslog-ng-*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sudoedit /data/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sudoedit /opt/syslog-ng/etc/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sudoedit /opt/syslog-ng/var/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/systemctl * syslog-ng
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/tail -* /var/log/messages*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/tail /var/log/messages*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/touch /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chown * /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/tail -* /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/tail /var/log/syslog-ng.log
+      %syslogmgt ALL=(ALL) NOPASSWD:/opt/syslog-ng/bin/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/opt/syslog-ng/sbin/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/crontab
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/python
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sh
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/tcpdump *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/netstat *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/ps -aux
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/traceroute *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/ifconfig *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/setcap cap_net_bind_service=+ep /opt/syslog-ng/libexec/syslog-ng
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/vim /etc/systemd/system/multi-user.target.wants/syslog-ng.service
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/service syslog-ng *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/journalctl -xe
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/useradd -M syslogng
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/systemctl daemon-reload
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/tar * /opt/syslog-ng/*
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/kill
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/sbin/runuser -l 'syslogng' *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/chown * /tmp/
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sh *
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sudo su - syslogng
+      %syslogmgt ALL=(ALL) NOPASSWD:/usr/bin/sudo -u syslogng *
+  tasks:
+    - name: Ansible Template Sudoers File
+      template:
+        src: jinja2_templates/ilc_sudoers.j2
+        dest: /etc/sudoers
+        owner: root
+        group: root
+        mode: 0440
+        validate: '/usr/sbin/visudo -cf %s'
+        backup: yes
+      become: true

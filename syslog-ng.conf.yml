@@ -1,0 +1,15 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+  
+  tasks:
+
+    - name: Ansible Template syslog-ng.conf File
+      template:
+        src: jinja2_templates/ilc_syslog-ng.conf.j2
+        dest: /opt/syslog-ng/etc/syslog-ng.conf
+        owner: syslogng
+        group: syslogng
+        mode: 0644
+        backup: yes
+      become: true

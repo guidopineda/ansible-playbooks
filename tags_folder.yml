@@ -1,0 +1,56 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: flowmon
+
+  tasks:
+
+    - name: Create tags directory
+      file:
+        path: /opt/syslog-ng/etc/tags/
+        state: directory
+        owner: syslogng
+        group: syslogng
+        mode: 0755
+      become: true
+
+    - name: Create hosts.csv file
+      file: 
+        path: /opt/syslog-ng/etc/tags/hosts.csv
+        state: touch
+        owner: syslogng
+        group: syslogng
+        mode: 0644
+      become: true
+
+    - name: Create normalizers.csv file
+      file: 
+        path: /opt/syslog-ng/etc/tags/normalizers.csv
+        state: touch
+        owner: syslogng
+        group: syslogng
+        mode: 0644
+      become: true
+
+    - name: Create treatment-filters.conf file
+      copy:
+        dest: /opt/syslog-ng/etc/tags/treatment-filters.conf
+        content: |
+          @version: 7.0
+          
+          filter f_default {
+            "1" == "1";
+          };
+        owner: syslogng
+        group: syslogng
+        mode: 0644
+      become: true
+
+    - name: Create treatment-result.csv file
+      copy:
+        dest: /opt/syslog-ng/etc/tags/treatment-result.csv
+        content: |
+          f_default,".ilc.treatment","forward"
+        owner: syslogng
+        group: syslogng
+        mode: 0644
+      become: true
