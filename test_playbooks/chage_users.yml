@@ -1,0 +1,12 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    users:
+    - vashi499
+  tasks:
+    - name: Change login expiration
+      shell: chage -I -1 -m 0 -M 99999 -E -1 "{{ item }}"
+      with_items: "{{ users }}"
+      become: true

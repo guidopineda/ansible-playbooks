@@ -1,0 +1,11 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: 10.117.142.50
+  gather_facts: false
+  tasks:
+
+    - name: Push file into remote system (/tmp/)
+      copy:
+        src: "/home/pined497/syslog-ng/kpn-keys-request/keys/slacrr779.prd.logmngt.oam.kpn.org/slacrr779.crt"
+        dest: /tmp/
+      become: true

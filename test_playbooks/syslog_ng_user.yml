@@ -1,0 +1,12 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Get the user running Syslog-ng
+      shell: 'ps aux | egrep "/opt/syslog-ng/libexec/syslog-ng" | egrep -v "grep"'
+      register: user
+      args:
+        warn: no
+
+    - debug: var=user.stdout_lines

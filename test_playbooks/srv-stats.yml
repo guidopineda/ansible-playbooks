@@ -1,0 +1,89 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    content_srv_stats_conf: |
+      ### srv-stats.sh config variables:
+      if_in="{{ interface.stdout }}" ; #enter the interface that receives logs here
+      if_out="{{ interface.stdout }}" ; #enter the interface that sends logs to the central environment here
+      #"
+
+
+  tasks:
+
+    - name: Copy files to remote system
+      copy:
+        src: "/home/pined497/syslog-ng/config-files/etc/srv-stats.sh"
+        dest: "/opt/syslog-ng/etc/"
+      become: true
+
+    - name: Get interface name
+      shell: '/usr/sbin/ifconfig | egrep ":" | head -n 1 | cut -d ":" -f 1' 
+      register: interface
+
+    - name: Create the srv-stats.sh.conf file
+      copy:
+        dest: /opt/syslog-ng/etc/srv-stats.sh.conf
+        content: "{{ content_srv_stats_conf }}"
+           
+      become: true
+
+    - name: Change file ownership to 'syslogng'
+      file:
+        path: "{{ item }}"
+        owner: syslogng
+        group: syslogng
+      with_items:
+        - /opt/syslog-ng/etc/srv-stats.sh
+        - /opt/syslog-ng/etc/srv-stats.sh.conf
+      become: true
+    
+    - name: Change to be executable
+      file: 
+        path: /opt/syslog-ng/etc/srv-stats.sh
+        mode: 0755
+      become: true
+
+    - name: Create log file /opt/syslog-ng/var/srv-stats.log
+      file: 
+        path: /opt/syslog-ng/var/srv-stats.log
+        state: touch
+        owner: syslogng
+        group: syslogng
+        mode: 0640
+      become: true
+
+    - name: Change expire date for user syslogng
+      shell: 'chage -I -1 -m 0 -M 99999 -E -1 syslogng'
+      become: true
+
+    - name: Add "syslogng" user to cron.allow
+      lineinfile:
+        path: /etc/cron.allow
+        insertafter: 'root'
+        line: 'syslogng'
+      become: true
+      ignore_errors: yes
+
+    - name: Remove previous cronjobs
+      command: crontab -u syslogng -r
+      become: true
+      ignore_errors: yes
+
+    - name: Add cronjob 1
+      cron:
+        name: Server statistics generation
+        minute: "*/5"
+        job: "/opt/syslog-ng/etc/srv-stats.sh"
+        user: syslogng
+      become: true
+
+    - name: Add cronjob 2
+      cron:
+        name: Periodically clean up the file
+        minute: "0"
+        hour: "0"
+        job: "> /opt/syslog-ng/var/srv-stats.log"
+        user: syslogng
+      become: true

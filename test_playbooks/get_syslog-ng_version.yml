@@ -1,0 +1,12 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: ilc
+  gather_facts: false
+  tasks:
+    - name: Get Syslog-ng version
+      shell: 'rpm -qa | grep "syslog-ng"'
+      register: syslog_ng_version
+      args:
+        warn: no
+
+    - debug: var=syslog_ng_version.stdout_lines

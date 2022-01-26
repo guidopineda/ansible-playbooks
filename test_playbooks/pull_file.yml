@@ -1,0 +1,11 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: 10.117.142.29
+  gather_facts: false
+  tasks:
+    - name: Fetch file from remote host
+      fetch:
+        src: /tmp/flowmon-logs.log
+        dest: /home/pined497/ansible-fetched-files
+        flat: no
+      become: true

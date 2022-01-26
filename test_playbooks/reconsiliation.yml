@@ -1,0 +1,16 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: iam
+  gather_facts: false
+  tasks:
+#    - name: 
+#      shell: 'cat /etc/passwd | cut -d ":" -f 1 | egrep "(^[a-z]+)([0-9]{3})"'
+#      register: users
+
+    - name: Last login
+      shell: 'lastlog | egrep "(^[a-z]+)([0-9]{3})"'
+      register: last
+
+
+    - debug: var=last.stdout_lines
+

@@ -1,0 +1,11 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: all-ilcs 
+  gather_facts: false
+  tasks:
+    - name: Load Balancer Production Environment, port 6514 
+      wait_for: host=10.117.142.8 port=6514 timeout=1
+    - debug: msg=ok
+    - name: Load Balancer Acceptance Environment, port 6514
+      wait_for: host=10.117.141.202 port=6514 timeout=1
+    - debug: msg=ok

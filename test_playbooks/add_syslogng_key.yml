@@ -1,0 +1,35 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: ilc
+  gather_facts: false
+  vars:
+    users: 
+    - syslogng
+  tasks:
+
+    - name: Create SSH directory
+      file:
+        path: "/home/{{ item }}/.ssh"
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: 0700
+        state: directory
+      with_items: "{{ users }}"
+      become: true
+
+    - name: Create empty file (authorized_keys)
+      file:
+        path: "/home/{{ item }}/.ssh/authorized_keys"
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: 0600
+        state: touch
+      with_items: "{{ users }}"
+      become: true
+
+    - name: Deploy public key
+      lineinfile:
+        path: "/home/{{ item }}/.ssh/authorized_keys"
+        line: "{{ pubkey }}"
+      with_items: "{{ users }}"
+      become: true

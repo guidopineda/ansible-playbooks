@@ -1,0 +1,11 @@
+# vim: set sw=2 sts=2 si:
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Fetch etc directory from remote host
+      fetch:
+        src: /opt/syslog-ng/etc/syslog-ng.conf
+        dest: /home/pined497/backup-etc/{{ inventory_hostname }}
+        flat: no
+        become: true
